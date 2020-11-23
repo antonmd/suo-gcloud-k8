@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mynginx
+  labels:
+    app: nginx
+    owner: Toha
+spec:
+  selector:
+    matchLabels:
+      project: mynginx-deploy
+  template:
+    metadata:
+      labels:
+        project: mynginx-deploy
+    spec:
+      containers:
+        - name: web
+          image: nginx
+          ports:
+            - containerPort: 80
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-autoscaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v2beta2
+    kind: Deployment
+    name: mynginx
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 70 
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 80 
